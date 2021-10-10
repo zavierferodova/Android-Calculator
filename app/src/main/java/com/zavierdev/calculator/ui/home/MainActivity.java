@@ -1,5 +1,6 @@
-package com.zavierdev.calculator;
+package com.zavierdev.calculator.ui.home;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,13 +12,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
+import com.zavierdev.calculator.R;
+import com.zavierdev.calculator.helpers.Calculator;
 
 import java.text.DecimalFormat;
 
-import net.objecthunter.exp4j.ExpressionBuilder;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private String[] LIST_CHECK_OPERAND = {"^", "+", "-", "×", "÷"};
+    private Calculator calculator;
     private Boolean STATE_ERROR = false;
     private Boolean STATE_RESULT = false;
     private MaterialButton btn0;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView((int) R.layout.activity_main);
 
+        this.calculator = new Calculator();
         initViewComponents();
         setButtonClickListener();
         setDefaultState();
@@ -58,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.tvResult.setSelected(true);
     }
 
+    /**
+     * Saving all component id on activity attributes
+     */
     private void initViewComponents() {
         this.edtOperation = (EditText) findViewById(R.id.edt_operation);
         this.tvResult = (TextView) findViewById(R.id.tv_result);
@@ -81,8 +86,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.btn7 = (MaterialButton) findViewById(R.id.btn_7);
         this.btn8 = (MaterialButton) findViewById(R.id.btn_8);
         this.btn9 = (MaterialButton) findViewById(R.id.btn_9);
+
     }
 
+    /**
+     * Adding all button component click listener
+     */
     private void setButtonClickListener() {
         this.btnResult.setOnClickListener(this);
         this.btnBackspace.setOnClickListener(this);
@@ -106,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.btn9.setOnClickListener(this);
     }
 
+    /**
+     * Set operation value to default state and normal calculation state
+     */
     private void setDefaultState() {
         setEdtSelectionToLast();
         this.edtOperation.setTextColor(Color.parseColor("#000000"));
@@ -116,12 +128,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.STATE_RESULT = false;
     }
 
+    /**
+     * Set to bad expression state error
+     */
+    @SuppressLint("SetTextI18n")
     private void stateErrorDisplay() {
         this.edtOperation.setTextColor(Color.parseColor("#FF0000"));
         this.tvResult.setTextColor(Color.parseColor("#FF0000"));
         this.tvResult.setText("Bad Expression");
     }
 
+    /**
+     * Clear error (bad expression) state to normal state
+     */
     private void removeStateError() {
         this.edtOperation.setTextColor(Color.parseColor("#000000"));
         this.tvResult.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.resultText));
@@ -129,137 +148,168 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         this.STATE_ERROR = false;
     }
 
+    /**
+     * Set state to calculation result
+     */
     private void setStateResult() {
         moveResultToEdtOperation();
         setEdtSelectionToLast();
-        this.btnBackspace.setIconResource(R.drawable.ic_char_c_24_white);
+        this.btnBackspace.setIconResource(R.drawable.ic_char_c_24_white); // Change Backspace Button to Clear Button
         this.STATE_RESULT = true;
     }
 
+    /**
+     * Set to normal calculation state
+     *
+     * @param clearOperation
+     */
     private void removeStateResult(Boolean clearOperation) {
-        if (clearOperation.booleanValue()) {
+        if (clearOperation) {
             this.edtOperation.setText("");
             this.tvResult.setText("");
         }
-        this.btnBackspace.setIconResource(R.drawable.ic_baseline_backspace_24_white);
+        this.btnBackspace.setIconResource(R.drawable.ic_baseline_backspace_24_white); // Change Clear Button to BackSpace Button
         this.STATE_RESULT = false;
     }
 
+    /**
+     * Handle all button click listener
+     *
+     * @param v
+     */
+    @SuppressLint("NonConstantResourceId")
     public void onClick(View v) {
-        if (this.STATE_ERROR.booleanValue()) {
+        final boolean isOnResultState = this.STATE_RESULT;
+        final boolean isOnErrorState = this.STATE_ERROR;
+        final boolean isButtonBackSpaceActionClick = v.getId() != R.id.btn_backspace;
+        final boolean isCanRemoveStateResult = isButtonBackSpaceActionClick && isOnResultState;
+
+        if (isOnErrorState) {
             removeStateError();
         }
-        if (v.getId() != R.id.btn_backspace && this.STATE_RESULT.booleanValue()) {
+
+        if (isCanRemoveStateResult) {
             removeStateResult(false);
         }
+
         switch (v.getId()) {
             case R.id.btn_0:
                 addEdtOperationText("0");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_1:
                 addEdtOperationText("1");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_2:
                 addEdtOperationText("2");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_3:
                 addEdtOperationText("3");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_4:
                 addEdtOperationText("4");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_5:
                 addEdtOperationText("5");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_6:
                 addEdtOperationText("6");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_7:
                 addEdtOperationText("7");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_8:
                 addEdtOperationText("8");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_9:
                 addEdtOperationText("9");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_addition:
                 addEdtOperationText("+");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_backspace:
-                if (this.STATE_RESULT.booleanValue()) {
+                if (isOnResultState) { // Backspace button has changed to Clear Button [C]
                     removeStateResult(true);
-                } else {
+                } else { // Delete operation
                     removeEdtOperationText();
                 }
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_close_bracket:
                 addEdtOperationText(")");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_division:
                 addEdtOperationText("÷");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_dot:
                 addEdtOperationText(".");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_multiplication:
                 addEdtOperationText("×");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_open_bracket:
                 addEdtOperationText("(");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_power:
                 addEdtOperationText("^");
                 calculateAndDisplay();
-                return;
+                break;
             case R.id.btn_result:
+                final boolean isOperationNotEmpty = !this.edtOperation.getText().toString().isEmpty();
                 calculateAndDisplay();
-                if (this.STATE_ERROR.booleanValue()) {
+                if (isOnErrorState) {
                     stateErrorDisplay();
-                    return;
-                } else {
+                } else if (isOperationNotEmpty) {
                     setStateResult();
-                    return;
                 }
+                break;
             case R.id.btn_subtraction:
                 addEdtOperationText("-");
                 calculateAndDisplay();
-                return;
-            default:
-                return;
+                break;
         }
     }
 
+    /**
+     * Set cursor EditText Operation to last position
+     */
     private void setEdtSelectionToLast() {
         this.edtOperation.setSelection(this.edtOperation.getText().toString().length());
     }
 
-    private void addEdtOperationText(String textValue) {
-        if (this.edtOperation.getSelectionStart() != 0 && isOperand(textValue) && isEdtCursorOnOperand() && !textValue.equals("-")) {
+    /**
+     * Add text both number or operation to EditText
+     *
+     * @param value
+     */
+    private void addEdtOperationText(String value) {
+        if (this.edtOperation.getSelectionStart() != 0 && calculator.checkIsOperator(value) && isEdtCursorOnOperator() && !value.equals("-")) {
             removeEdtOperationText();
         }
-        if (!this.edtOperation.getText().toString().isEmpty() || !isOperand(textValue)) {
-            this.edtOperation.getText().insert(this.edtOperation.getSelectionStart(), textValue);
+
+        if (!this.edtOperation.getText().toString().isEmpty() || !calculator.checkIsOperator(value)) {
+            this.edtOperation.getText().insert(this.edtOperation.getSelectionStart(), value);
         }
     }
 
+    /**
+     * Remove one digit value of EditText Operation Component
+     */
     private void removeEdtOperationText() {
         int cursorStart = this.edtOperation.getSelectionStart();
         if (cursorStart != 0) {
@@ -267,106 +317,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Move calculation result to EditText Operation Component
+     */
+    private void moveResultToEdtOperation() {
+        this.edtOperation.setText(this.tvResult.getText().toString().replace(",", ""));
+        this.tvResult.setText("");
+    }
+
+    /**
+     * Evaluate operation and perform calculation then display to TextView Result
+     */
     private void calculateAndDisplay() {
-        if (this.edtOperation.getText().toString().isEmpty()) {
+        final String operation = this.edtOperation.getText().toString();
+        this.STATE_ERROR = false;
+
+        if (operation.isEmpty()) {
             this.tvResult.setText("");
-        } else if (!isEdtLastValueOperand()) {
-            String edtValue = fillLostBracket(this.edtOperation.getText().toString().replace("×", "*").replace("÷", "/"));
+        } else if (!isEdtLastValueOperator()) {
             try {
+                double resultVal = calculator.performCalculation(this.edtOperation.getText().toString());
                 DecimalFormat formatter = new DecimalFormat("#,###.######");
-                double resultVal = new ExpressionBuilder(edtValue).build().evaluate();
-                this.STATE_ERROR = false;
-                if (!edtValue.isEmpty()) {
-                    this.tvResult.setText(formatter.format(resultVal));
-                }
+                this.tvResult.setText(formatter.format(resultVal));
             } catch (Exception e) {
                 this.STATE_ERROR = true;
             }
         }
     }
 
-    private void moveResultToEdtOperation() {
-        this.edtOperation.setText(this.tvResult.getText().toString().replace(",", ""));
-        this.tvResult.setText("");
+    /**
+     * Check is EditText Operation last value is operator
+     *
+     * @return
+     */
+    private boolean isEdtLastValueOperator() {
+        return calculator.checkIsOperator(String.valueOf(this.edtOperation.getText().toString().charAt(this.edtOperation.getText().toString().length() - 1)));
     }
 
-    private boolean isOperand(String value) {
-        boolean isOperand = false;
-        int i = 0;
-        while (true) {
-            String[] strArr = this.LIST_CHECK_OPERAND;
-            if (i >= strArr.length) {
-                return isOperand;
-            }
-            if (strArr[i].equals(value)) {
-                isOperand = true;
-            }
-            i++;
-        }
-    }
-
-    private boolean isEdtLastValueOperand() {
-        return isOperand(String.valueOf(this.edtOperation.getText().toString().charAt(this.edtOperation.getText().toString().length() - 1)));
-    }
-
-    private boolean isEdtCursorOnOperand() {
+    /**
+     * Check EditText Operation value before cursor is operator
+     *
+     * @return
+     */
+    private boolean isEdtCursorOnOperator() {
         String edtValue = String.valueOf(this.edtOperation.getText().toString().charAt(this.edtOperation.getSelectionStart() - 1));
-        boolean isOnOperand = false;
+        boolean isOnOperator = false;
         int i = 0;
         while (true) {
-            String[] strArr = this.LIST_CHECK_OPERAND;
+            String[] strArr = calculator.LIST_SUPPORTED_OPERATOR;
             if (i >= strArr.length) {
-                return isOnOperand;
+                return isOnOperator;
             }
             if (strArr[i].equals(edtValue)) {
-                isOnOperand = true;
+                isOnOperator = true;
             }
             i++;
         }
-    }
-
-    private String fillLostBracket(String str) {
-        if (String.valueOf(str.charAt(str.length() - 1)).equals("(")) {
-            str = str.substring(0, str.length() - 1);
-        }
-        return fillCloseBracket(fillOpenBracket(str));
-    }
-
-    private String fillOpenBracket(String str) {
-        int openBracketAmmounts = 0;
-        int closeBracketAmmounts = 0;
-        for (int i = 0; i < str.length(); i++) {
-            if (String.valueOf(str.charAt(i)).equals("(")) {
-                openBracketAmmounts++;
-            }
-        }
-        for (int i2 = 0; i2 < str.length(); i2++) {
-            if (String.valueOf(str.charAt(i2)).equals(")")) {
-                closeBracketAmmounts++;
-            }
-        }
-        for (int i3 = 0; i3 < openBracketAmmounts - closeBracketAmmounts; i3++) {
-            str = str + ")";
-        }
-        return str;
-    }
-
-    private String fillCloseBracket(String str) {
-        int openBracketAmmounts = 0;
-        int closeBracketAmmounts = 0;
-        for (int i = 0; i < str.length(); i++) {
-            if (String.valueOf(str.charAt(i)).equals(")")) {
-                closeBracketAmmounts++;
-            }
-        }
-        for (int i2 = 0; i2 < str.length(); i2++) {
-            if (String.valueOf(str.charAt(i2)).equals("(")) {
-                openBracketAmmounts++;
-            }
-        }
-        for (int i3 = 0; i3 < closeBracketAmmounts - openBracketAmmounts; i3++) {
-            str = "(" + str;
-        }
-        return str;
     }
 }
