@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zavierdev.calculator">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
@@ -11,7 +10,8 @@
         android:theme="@style/Theme.Calculator">
         <activity
             android:name=".ui.splashscreen.SplashScreenActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar.Bridge">
+            android:exported="true"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,7 +20,8 @@
         </activity>
         <activity
             android:name=".ui.home.MainActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar.Bridge"></activity>
+            android:exported="true"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar.Bridge" />
     </application>
 
 </manifest>
